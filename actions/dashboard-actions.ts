@@ -200,6 +200,36 @@ export async function saveAssessmentSubmission(formData: FormData) {
       text: "How supported and able to cope have you felt this week?",
       value: getString(formData, "question_4"),
     },
+    {
+      order: 5,
+      text: "How often have racing or restless thoughts interrupted your focus?",
+      value: getString(formData, "question_5"),
+    },
+    {
+      order: 6,
+      text: "How often have you felt unusually tense or on edge?",
+      value: getString(formData, "question_6"),
+    },
+    {
+      order: 7,
+      text: "How often have sleep issues left you feeling drained the next day?",
+      value: getString(formData, "question_7"),
+    },
+    {
+      order: 8,
+      text: "How often have you missed social activities because of low mood?",
+      value: getString(formData, "question_8"),
+    },
+    {
+      order: 9,
+      text: "How often have you found it hard to enjoy things you usually like?",
+      value: getString(formData, "question_9"),
+    },
+    {
+      order: 10,
+      text: "How often have you felt confident in handling problems today?",
+      value: getString(formData, "question_10"),
+    },
   ];
 
   const scoreMap: Record<string, number> = {
@@ -207,10 +237,6 @@ export async function saveAssessmentSubmission(formData: FormData) {
     "Several days": 1,
     "More than half the days": 2,
     "Nearly every day": 3,
-    Strong: 0,
-    Fair: 1,
-    Fragile: 2,
-    Overwhelmed: 3,
   };
 
   const scoredAnswers = questions.map((question) => ({
@@ -218,16 +244,13 @@ export async function saveAssessmentSubmission(formData: FormData) {
     score: scoreMap[question.value] ?? 0,
   }));
 
-  const anxietyScore = (scoredAnswers[0].score + scoredAnswers[1].score) / 2;
-  const sadnessScore = scoredAnswers[2].score;
-  const resiliencePenalty = scoredAnswers[3].score;
-  const totalScore =
-    scoredAnswers[0].score + scoredAnswers[1].score + scoredAnswers[2].score + resiliencePenalty;
-  const wellnessScore = Math.max(0, Math.min(100, 100 - totalScore * 8));
-  const anxietyLevel = normalizeLevel(anxietyScore);
-  const sadnessLevel = normalizeLevel(sadnessScore);
-  const riskLevel = normalizeRisk((anxietyScore + sadnessScore + resiliencePenalty) / 3);
-  const summaryText = `Recent check-in points to ${anxietyLevel.toLowerCase()} anxiety and ${sadnessLevel.toLowerCase()} sadness. Focus on routines that improve recovery and reduce overwhelm.`;
+  const totalScore = scoredAnswers.reduce((sum, answer) => sum + answer.score, 0);
+  const averageScore = scoredAnswers.length > 0 ? totalScore / scoredAnswers.length : 0;
+  const wellnessScore = Math.max(0, Math.min(100, 100 - averageScore * 10));
+  const anxietyLevel = normalizeLevel((scoredAnswers[0].score + scoredAnswers[1].score) / 2);
+  const sadnessLevel = normalizeLevel((scoredAnswers[2].score + scoredAnswers[6].score) / 2);
+  const riskLevel = normalizeRisk(averageScore);
+  const summaryText = `Your assessment indicates ${anxietyLevel.toLowerCase()} anxiety and ${sadnessLevel.toLowerCase()} sadness. Keep focusing on routines that support recovery and reduce overwhelm.`;
 
   const { data: submission } = await supabase
     .from("assessment_submissions")

@@ -9,6 +9,7 @@ import {
   saveProfile,
   signOutUser,
 } from "@/actions/dashboard-actions";
+import { MoodIntensitySlider } from "@/components/dashboard/mood-intensity-slider";
 import type { DashboardSlug } from "@/components/dashboard/dashboard-nav";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -17,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { AssessmentWizard } from "@/components/dashboard/assessment-wizard";
 import {
   type AssessmentSubmissionRecord,
   type DashboardData,
@@ -25,6 +27,7 @@ import {
   getCurrentDashboardData,
 } from "@/lib/dashboard/data";
 import { cn } from "@/lib/utils";
+import { SuggestionsInteractive } from "@/components/dashboard/suggestions-interactive";
 
 const moodOptions = [
   { value: "Happy", emoji: "😊", score: 9, badge: "good" as const },
@@ -33,29 +36,6 @@ const moodOptions = [
   { value: "Sad", emoji: "😢", score: 3, badge: "warn" as const },
   { value: "Anxious", emoji: "😰", score: 2, badge: "warn" as const },
   { value: "Stressed", emoji: "😤", score: 1, badge: "danger" as const },
-];
-
-const assessmentQuestions = [
-  {
-    name: "question_1",
-    label: "How often have you felt overwhelmed by daily responsibilities?",
-    options: ["Not at all", "Several days", "More than half the days", "Nearly every day"],
-  },
-  {
-    name: "question_2",
-    label: "How difficult has it been to quiet anxious thoughts at night?",
-    options: ["Not at all", "Several days", "More than half the days", "Nearly every day"],
-  },
-  {
-    name: "question_3",
-    label: "How often have you felt down, low-energy, or disconnected?",
-    options: ["Not at all", "Several days", "More than half the days", "Nearly every day"],
-  },
-  {
-    name: "question_4",
-    label: "How supported and able to cope have you felt this week?",
-    options: ["Strong", "Fair", "Fragile", "Overwhelmed"],
-  },
 ];
 
 const profileFocusAreas = [
@@ -310,19 +290,36 @@ function getSuggestionCards(data: DashboardData) {
       icon: "🌬️",
       title: "Box Breathing",
       description: "A fast reset when your body feels tense or your thoughts are spiraling.",
-      tag: "4 minutes",
+      tag: "Try now",
+      href: "#box-breathing",
+    },
+    {
+      icon: "🧘",
+      title: "Guided Meditation",
+      description: "Close your eyes and follow a short visual meditation for calm focus.",
+      tag: "Begin now",
+      href: "#guided-meditation",
+    },
+    {
+      icon: "🎧",
+      title: "Calm Music",
+      description: "Play gentle soundscapes while breathing and resting.",
+      tag: "Listen",
+      href: "#calm-music",
+    },
+    {
+      icon: "💬",
+      title: "Mental Health Chat",
+      description: "Ask the bot for quick coping ideas and supportive suggestions.",
+      tag: "Chat now",
+      href: "#mental-health-chat",
     },
     {
       icon: "✍️",
       title: "Reflect in Your Journal",
       description: "Turning the day into words can lower mental load and make patterns easier to spot.",
-      tag: "5 minutes",
-    },
-    {
-      icon: "🌙",
-      title: "Protect Tonight's Sleep",
-      description: "Reduce stimulation before bed so recovery does not keep slipping.",
-      tag: "Evening focus",
+      tag: "Write now",
+      href: "/dashboard/journal",
     },
   ];
 
@@ -803,12 +800,7 @@ function MoodCheckInPage({ data }: { data: DashboardData }) {
         </Card>
         <Card className="mb-20">
           <CardTitle>Intensity (1-10)</CardTitle>
-          <div className="slider-row">
-            <span className="slider-label">Mild</span>
-            <input className="styled-slider" defaultValue={latestMood?.intensity ?? 5} max={10} min={1} name="intensity" type="range" />
-            <span className="slider-label">Intense</span>
-            <span className="slider-val">{latestMood?.intensity ?? 5}</span>
-          </div>
+          <MoodIntensitySlider initialValue={latestMood?.intensity ?? 5} />
         </Card>
         <Card className="mb-20">
           <CardTitle>Add a Note</CardTitle>
@@ -829,33 +821,10 @@ function AssessmentPage({ data }: { data: DashboardData }) {
     <section className="page-route">
       <PageHeader
         title="Mental Health Assessment"
-        subtitle="Submitting this form creates a row in `assessment_submissions` plus its matching `assessment_answers`."
+        subtitle="Answer each question one at a time, then submit your assessment on the final step."
       />
       <form action={saveAssessmentSubmission}>
-        <div className="question-card">
-          <div className="q-progress-wrap">
-            <Progress className="q-progress-bar" indicatorClassName="q-progress-fill" value={100} />
-            <div className="q-counter">{assessmentQuestions.length} quick questions</div>
-          </div>
-          {assessmentQuestions.map((question) => (
-            <div className="form-group" key={question.name}>
-              <label className="form-label">{question.label}</label>
-              <select className="form-input" defaultValue={question.options[0]} name={question.name}>
-                {question.options.map((option) => (
-                  <option key={option}>{option}</option>
-                ))}
-              </select>
-            </div>
-          ))}
-          <div className="q-nav">
-            <Link className={buttonVariants({ variant: "outline" })} href="/dashboard/trends">
-              View Trends
-            </Link>
-            <button className="btn-next" type="submit">
-              Save Assessment
-            </button>
-          </div>
-        </div>
+        <AssessmentWizard />
       </form>
 
       <div className="result-card">
@@ -1111,14 +1080,19 @@ function SuggestionsPage({ data }: { data: DashboardData }) {
       </div>
       <div className="suggestion-grid mb-24">
         {suggestionCards.map((card) => (
-          <Card className="suggestion-card" key={card.title}>
+          <Link
+            key={card.title}
+            href={card.href ?? "/dashboard/suggestions"}
+            className="suggestion-card"
+          >
             <div className="suggestion-icon">{card.icon}</div>
             <div className="suggestion-title">{card.title}</div>
             <p className="suggestion-desc">{card.description}</p>
             <span className="suggestion-tag">{card.tag}</span>
-          </Card>
+          </Link>
         ))}
       </div>
+      <SuggestionsInteractive data={data} />
       <Card className="mb-20">
         <CardTitle>Suggested Focus Area</CardTitle>
         <div className="tips-list">
