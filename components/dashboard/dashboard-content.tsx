@@ -329,6 +329,7 @@ function getSuggestionCards(data: DashboardData) {
       title: "Body Scan Reset",
       description: "Ground physical tension first, then return to the task that feels heavy.",
       tag: "10 minutes",
+      href: "#body-scan-reset",
     };
   }
 
@@ -338,6 +339,7 @@ function getSuggestionCards(data: DashboardData) {
       title: "Screen-Light Wind Down",
       description: "Shorten screen time tonight to help your sleep duration recover.",
       tag: "Tonight",
+      href: "#screen-wind-down",
     };
   }
 
@@ -347,6 +349,7 @@ function getSuggestionCards(data: DashboardData) {
       title: "Keep Momentum Going",
       description: "Capture what is helping lately so you can repeat it on more difficult days.",
       tag: "2 minutes",
+      href: "#keep-momentum",
     };
   }
 
