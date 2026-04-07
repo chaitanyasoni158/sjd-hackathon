@@ -1,10 +1,8 @@
-import { type NextRequest, NextResponse } from 'next/server'
-// import { updateSession } from '@/lib/supabase/proxy'
+import { type NextRequest } from 'next/server'
+import { updateSession } from '@/lib/supabase/proxy'
 
-// Temporarily disabled middleware
 export async function proxy(request: NextRequest) {
-  // return await updateSession(request)
-  return NextResponse.next()
+  return await updateSession(request)
 }
 
 export const config = {
