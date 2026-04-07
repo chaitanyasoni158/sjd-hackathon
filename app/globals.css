@@ -4,11 +4,6 @@
 
 html {
   min-height: 100%;
-  --text: #eef4ff;
-  --text2: #a8b3c8;
-  --text3: #6b7a96;
-  --border: rgba(61, 99, 158, 0.35);
-  --accent: #2563eb;
 }
 
 body {
